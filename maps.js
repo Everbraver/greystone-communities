@@ -6,11 +6,22 @@
 // `ReferenceError: google is not defined` — which is why the page needed reloading
 // twice to show a map. Gate init on BOTH signals instead of just cmsload.
 //
-// Requires `&loading=async&callback=__initMap` on the Maps API script tag in Webflow.
-const googleMapsReady = new Promise((resolve) => {
-  if (window.google && window.google.maps) return resolve();
-  window.__initMap = resolve;
-});
+// Requires `&loading=async&callback=__initMap` on the Maps API script tag in Webflow,
+// preceded in the SAME head block by the shim that creates window.__mapsReady:
+//
+//   <script>window.__mapsReady = new Promise(r => { window.__initMap = r; });</script>
+//
+// The shim must sit in the head because this file is deferred in the footer: on a warm
+// cache the Maps API can finish and call __initMap BEFORE this file has parsed, which
+// would log "__initMap is not a function". Preferring the head-created promise removes
+// that ordering assumption. The inline fallback keeps this file working on its own if
+// the shim is ever lost.
+const googleMapsReady =
+  window.__mapsReady ||
+  new Promise((resolve) => {
+    if (window.google && window.google.maps) return resolve();
+    window.__initMap = resolve;
+  });
 
 window.fsAttributes = window.fsAttributes || [];
 window.fsAttributes.push([

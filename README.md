@@ -67,7 +67,7 @@ Passing means all four: no `google is not defined`, no `MapError` of any kind, n
 
 | Dependency | Note |
 |---|---|
-| Google Maps JavaScript API | Must be loaded with `&loading=async&callback=__initMap` — `maps.js` waits on that callback |
+| Google Maps JavaScript API | Must be loaded with `&loading=async&callback=__initMap`, preceded in the same head block by `<script>window.__mapsReady = new Promise(r => { window.__initMap = r; });</script>`. The shim placement is load-bearing: `maps.js` is deferred in the footer, so on a warm cache the API can call `__initMap` before this file parses |
 | `@googlemaps/markerclusterer` | **Pin the version.** Unpinned, a breaking major release takes the map down with nobody touching anything |
 | Finsweet Attributes `cmsload` | Fires the init callback once the CMS list has rendered. v1 is legacy — migrating to v2 is on the backlog |
 
