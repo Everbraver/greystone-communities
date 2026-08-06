@@ -60,8 +60,17 @@ perl -e 'alarm 70; exec @ARGV or die' -- \
 grep -a CONSOLE verify.txt | sed 's/.*CONSOLE:[0-9]*\] //'
 ```
 
-Passing means all four: no `google is not defined`, no `MapError` of any kind, no
-`For development purposes only` watermark in the screenshot, and ~142 markers rendering.
+Passing means all four, and three of them are mechanical:
+
+```bash
+grep -ac "google is not defined"          verify.txt   # must be 0
+grep -aci "MapError"                      verify.txt   # must be 0  (incl. InvalidMapIdError)
+grep -a CONSOLE verify.txt | grep -o "object Object" | wc -l   # must be ~142 (the markers)
+```
+
+The fourth is the screenshot: no `For development purposes only` watermark tiled across
+`verify.png`. That one is a genuine eyeball check - it is a billing signal Google renders
+into the map tiles themselves, so it never reaches the console.
 
 ## Runtime dependencies (all loaded from the Webflow page, not from here)
 
