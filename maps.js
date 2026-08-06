@@ -1,9 +1,23 @@
 // Code to run when page finishes loading
+//
+// The Google Maps API is loaded from the Webflow page with `async defer`, so
+// `google.maps` is NOT guaranteed to exist when Finsweet's cmsload callback fires.
+// On a cold cache the Maps API lands ~1s AFTER cmsload, and the map init throws
+// `ReferenceError: google is not defined` — which is why the page needed reloading
+// twice to show a map. Gate init on BOTH signals instead of just cmsload.
+//
+// Requires `&loading=async&callback=__initMap` on the Maps API script tag in Webflow.
+const googleMapsReady = new Promise((resolve) => {
+  if (window.google && window.google.maps) return resolve();
+  window.__initMap = resolve;
+});
+
 window.fsAttributes = window.fsAttributes || [];
 window.fsAttributes.push([
   "cmsload",
-  (listInstances) => {
-    // Load Map once the locations have finished rendering
+  async (listInstances) => {
+    // Load Map once the locations have finished rendering AND the Maps API is ready
+    await googleMapsReady;
     loadMap();
   },
 ]);
