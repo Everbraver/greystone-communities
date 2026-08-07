@@ -114,7 +114,13 @@ const loadMap = function () {
     var map = new google.maps.Map(document.getElementById("map"), {
       center: { lat: 37.5377078, lng: -100.2053964 },
       zoom: 4,
-      mapId: "7ff477d0469bb117",
+      // mapId removed 2026-08-07. A Map ID is a resource inside ONE Google Cloud
+      // project. The original ("7ff477d0469bb117") lived in the Casual Sushi project,
+      // whose billing lapsed and which is no longer reachable - so the style it
+      // referenced is unrecoverable regardless. Carrying a dead Map ID into the new
+      // project would throw InvalidMapIdError; minting a fresh empty one would render
+      // identically to having none. If Greystone ever wants cloud-based map styling,
+      // create a Map ID in the everbrave-greystone-maps project and restore this line.
       mapTypeControl: false,
       fullscreenControl: false,
       streetViewControl: false,
