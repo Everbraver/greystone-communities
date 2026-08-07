@@ -41,7 +41,19 @@ safe: every previously shipped version stays permanently reachable.)
 **2. A Google Maps `mapId` belongs to one specific Google Cloud project.** If the API key is
 ever moved to a different project, the `mapId` in `maps.js` must be recreated in the new project
 too. Swapping only the key produces `InvalidMapIdError` — a map that is broken in a new and
-confusing way.
+confusing way. (As of v1.7.0 there is no `mapId`, so this only applies if one is reintroduced.)
+
+**3. Never compute an SRI hash through a shell variable.** Command substitution strips trailing
+newlines, so the hash is computed on different bytes than the file actually contains, and the
+browser blocks the script with `Failed to find a valid digest in the 'integrity' attribute`.
+This cost a deploy cycle on 2026-08-07. Always pipe directly:
+
+```bash
+curl -sL <url> | openssl dgst -sha384 -binary | openssl base64 -A     # correct
+BODY=$(curl -sL <url>); echo -n "$BODY" | openssl dgst ...            # WRONG
+```
+
+Recompute the `maps.js` hash on every version bump — that is the point of pinning it.
 
 ## Verify a change before calling it done
 
